@@ -18,6 +18,10 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
+springBoot {
+	executable = true
+}
+
 jar {
 	baseName = 'spring-boot-app'
 	version = '0.0.1-SNAPSHOT'
@@ -35,7 +39,16 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-remote-shell')
 	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-	runtime('org.springframework.boot:spring-boot-devtools')
+    compile('org.springframework.boot:spring-boot-starter-websocket')
+	compile('org.springframework.boot:spring-boot-starter-security')
+	compile('org.thymeleaf.extras:thymeleaf-extras-springsecurity4')
+    compile('org.webjars:requirejs:2.2.0')
+    compile('org.webjars.npm:stompjs:2.3.3') {
+        exclude module: 'websocket' // we are using SockJs web socket functionality
+    }
+    compile('org.webjars.bower:sockjs-client:1.1.0')
+    runtime('org.springframework.boot:spring-boot-devtools')
+
 	runtime('com.h2database:h2')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

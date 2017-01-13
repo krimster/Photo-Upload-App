@@ -128,7 +128,7 @@ public class HomeController {
                                         RedirectAttributes redirectAttributes) {
 
         try {
-            imageService.deleteIMage(filename);
+            imageService.deleteImage(filename);
             redirectAttributes.addFlashAttribute("flash.message", "Successfully deleted " + filename);
         } catch (IOException|RuntimeException e) {
             redirectAttributes.addFlashAttribute("flash.message", "Failed to delete " + filename + " => " + e.getMessage());

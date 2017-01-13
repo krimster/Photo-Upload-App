@@ -3,6 +3,7 @@ package com.erickrim.springboot.entities;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 /**
  * Created by krime on 1/9/17.
@@ -15,10 +16,15 @@ public class Image {
 
     private String name;
 
-    private Image() {} // reequired by jpa
+    @OneToOne
+    private User owner;
 
-    public Image(String name) {
+    private Image() {} // required by jpa
+
+    public Image(String name, User owner) {
+
         this.name = name;
+        this.owner = owner;
     }
 
     public Long getId() {
@@ -35,5 +41,13 @@ public class Image {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 }

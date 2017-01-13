@@ -1,15 +1,30 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeLeaf.org">
+<html lang="en" xmlns:th="http://www.thymeLeaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head>
     <meta charset="UTF-8"/>
     <link rel="stylesheet" href="/main.css"/>
     <title>Learning Spring Boot</title>
+    <script src="webjars/requirejs/2.2.0/require.js"/>
 </head>
 <body>
 
-    <h2>Action Packed Video - Dive in Deep</h2>
+    <div>
+    <span sec:authentication="name"/> has <span sec:authentication="authorities"/>
+        <form sec:authorize-expr="isFullyAuthenticated()" method="post" th:action="@{/logout}">
+            <input type="submit" value="Sign off"/>
+        </form>
+
+        <form sec:authorize-expr="!isFullyAuthenticated()" method="post" th:action="@{/login}">
+            <label>Username</label><input type="text" name="username" value=""/>
+            <label>Password</label><input type="password" name="password" />
+            <input type="submit" value="Sign In"/>
+        </form>
+
+    </div>
+    <h1>Learning Spring Boot</h1>
 
     <h3 th:if="${#vars['flash.message']}" th:text="${#vars['flash.message']}" class="flash"></h3>
+
 
     <div>
         <h3 th:text="${page.number +1} + ' of' + ${page.totalPages}" />
@@ -17,16 +32,17 @@
         <table>
             <thead>
             <tr>
-                <th>Id</th><th>Name</th><th>Image</th><th></th>
+                <th>Id</th><th>Name</th><th>Owner</th><th>Image</th><th></th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="image : ${page.content}">
                 <td th:text="${image.id}"/>
                 <td th:text="${image.name}"/>
+                <td th:text="${image.owner.username}"/>
                 <td><a th:href="@{'/images/' + ${image.name} + '/raw'}"><img th:src="@{'/images/' + ${image.name} + '/raw'}" class="thumbnail"/></a></td>
                 <td>
-                    <form th:method="delete" th:action="@{'/images/' + ${image.name}}">
+                    <form sec:authorize-expr="isFullyAuthenticated()" th:method="delete" th:action="@{'/images/' + ${image.name}}">
                         <input type="submit" value="Delete" />
                     </form>
                 </td>
@@ -40,11 +56,39 @@
 
         </ul>
 
-        <form method="post" enctype="multipart/form-data" action="/images">
+        <form sec:authorize-url="POST /images" method="post" enctype="multipart/form-data" th:action="@{/images}">
             <p><input type="file" name="file" /></p>
             <p><input type="submit" value="Upload" /></p>
         </form>
 
     </div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    (function(){
+        window.require(['webjars/stompjs/2.3.3/lib/stomp', 'webjars/sockjs-client/1.1.0/dist/sockjs', function(stomp, SockJs) {
+
+            var reDrawCurrentPage= function(message) {
+                console.log(message);
+                window.location =/*[[@{/(size=${page.size},page=${page.number})}]]*/'';
+
+            }
+
+            var socket = SockJs('/imageMessages');
+            var stompClient = Stomp.over(socket);
+            stompClient.connect({/* optional headers*/}, function(frame) {
+                stompClient.subscribe('/topic/newImage', reDrawCurrentPage);
+                stompClient.subscribe('/topic/deleteImage', reDrawCurrentPage);
+
+
+            })
+        } ])
+
+
+    })();
+
+    /*]]>*/
+
+    </script>
 </body>
 </html>
